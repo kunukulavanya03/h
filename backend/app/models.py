@@ -1,23 +1,28 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from app.database import Base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from app.config import settings
+
+Base = declarative_base()
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True, nullable=False)
+    username = Column(String, nullable=False, unique=True)
+    email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    name = Column(String, nullable=True)
 
-    items = relationship("Item", back_populates="user")
+    def __repr__(self):
+        return f'User(id={self.id}, username={self.username}, email={self.email})'
 
-class Item(Base):
-    __tablename__ = "items"
+class Data(Base):
+    __tablename__ = 'data'
 
     id = Column(Integer, primary_key=True)
-    title = Column(String, nullable=False)
+    name = Column(String, nullable=False)
     description = Column(String, nullable=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    user = relationship("User", back_populates="items")
+    def __repr__(self):
+        return f'Data(id={self.id}, name={self.name}, description={self.description})'
