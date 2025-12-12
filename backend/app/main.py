@@ -1,19 +1,24 @@
 from fastapi import FastAPI
-from dotenv import load_dotenv
-from app.routes import auth_router, users_router, items_router
-from app.database import SessionLocal, engine
-from app.models import Base
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from app.dependencies import get_db
+from app.routers import auth, data, users
+from app.utils import get_jwt_token, authenticate_user
+from app.config import settings
+from app.schemas import User
 
-load_dotenv()
+app = FastAPI(
+    title='FastAPI Application',
+    description='A simple FastAPI application.',
+    version='1.0.0',
+)
 
-app = FastAPI()
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(data.router)
 
-Base.metadata.create_all(bind=engine)
-
-app.include_router(auth_router, prefix="/api/auth")
-app.include_router(users_router, prefix="/api/users")
-app.include_router(items_router, prefix="/api/items")
-
-@app.get("/api/health")
-def health_check():
-    return {"status": "OK", "message": "Backend is up and running"}
+@app.get('/api/health')
+def read_health():
+    return {'status': 'ok'}
